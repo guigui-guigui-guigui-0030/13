@@ -1,0 +1,232 @@
+﻿<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI名片王 - 分片式名片管理</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .header { background: #2c3e50; color: white; padding: 20px; text-align: center; border-radius: 8px; margin-bottom: 20px; }
+        .card { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #3498db; color: white; padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px; }
+        button:hover { background: #2980b9; }
+        .success { color: #27ae60; }
+        .error { color: #e74c3c; }
+        .shard-info { background: #ecf0f1; padding: 10px; border-radius: 4px; margin-top: 10px; }
+        .search-results { margin-top: 20px; }
+        .result-item { background: #f8f9fa; padding: 10px; margin-bottom: 10px; border-radius: 4px; border-left: 4px solid #3498db; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 AI名片王</h1>
+            <p>分片式名片管理系統 - 支援100萬用戶</p>
+        </div>
+
+        <!-- 用戶註冊 -->
+        <div class="card">
+            <h2>📝 註冊名片</h2>
+            <div class="input-group">
+                <label>用戶ID (1-1000000):</label>
+                <input type="number" id="userId" min="1" max="1000000" placeholder="請輸入用戶ID">
+            </div>
+            <div class="input-group">
+                <label>姓名:</label>
+                <input type="text" id="userName" placeholder="請輸入姓名">
+            </div>
+            <div class="input-group">
+                <label>公司:</label>
+                <input type="text" id="userCompany" placeholder="請輸入公司名稱">
+            </div>
+            <div class="input-group">
+                <label>職位:</label>
+                <input type="text" id="userTitle" placeholder="請輸入職位">
+            </div>
+            <div class="input-group">
+                <label>電話:</label>
+                <input type="tel" id="userPhone" placeholder="請輸入電話">
+            </div>
+            <div class="input-group">
+                <label>Email:</label>
+                <input type="email" id="userEmail" placeholder="請輸入Email">
+            </div>
+            <button onclick="registerUser()">註冊名片</button>
+            <button onclick="getUserInfo()">查詢名片</button>
+            <div id="registerResult"></div>
+        </div>
+
+        <!-- 搜尋功能 -->
+        <div class="card">
+            <h2>🔍 搜尋名片</h2>
+            <div class="input-group">
+                <label>搜尋關鍵字:</label>
+                <input type="text" id="searchQuery" placeholder="請輸入姓名或公司名稱">
+            </div>
+            <button onclick="searchUsers()">搜尋</button>
+            <div id="searchResults" class="search-results"></div>
+        </div>
+
+        <!-- 分片資訊 -->
+        <div class="card">
+            <h2>⚙️ 分片資訊</h2>
+            <div class="input-group">
+                <label>查詢用戶ID的分片資訊:</label>
+                <input type="number" id="shardUserId" min="1" max="1000000" placeholder="請輸入用戶ID">
+            </div>
+            <button onclick="getShardInfo()">查詢分片</button>
+            <div id="shardInfo"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://your-render-app.onrender.com/api';
+
+        // 註冊用戶
+        async function registerUser() {
+            const userId = parseInt(document.getElementById('userId').value);
+            const userData = {
+                name: document.getElementById('userName').value,
+                company: document.getElementById('userCompany').value,
+                title: document.getElementById('userTitle').value,
+                phone: document.getElementById('userPhone').value,
+                email: document.getElementById('userEmail').value,
+                created_at: new Date().toISOString()
+            };
+
+            if (!userId || !userData.name) {
+                document.getElementById('registerResult').innerHTML = '<p class="error">請填寫用戶ID和姓名</p>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId, user_data: userData })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('registerResult').innerHTML = `
+                        <p class="success">✅ 註冊成功！</p>
+                        <div class="shard-info">
+                            <strong>分片資訊:</strong><br>
+                            用戶ID: ${userId}<br>
+                            分片索引: ${result.shard_index}<br>
+                            Firebase專案: ai-card-${result.shard_index}
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('registerResult').innerHTML = `<p class="error">❌ 註冊失敗: ${result.error}</p>`;
+                }
+            } catch (error) {
+                document.getElementById('registerResult').innerHTML = `<p class="error">❌ 網路錯誤: ${error.message}</p>`;
+            }
+        }
+
+        // 查詢用戶資訊
+        async function getUserInfo() {
+            const userId = parseInt(document.getElementById('userId').value);
+            
+            if (!userId) {
+                document.getElementById('registerResult').innerHTML = '<p class="error">請輸入用戶ID</p>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/user/${userId}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    const data = result.data;
+                    document.getElementById('registerResult').innerHTML = `
+                        <p class="success">✅ 查詢成功！</p>
+                        <div class="shard-info">
+                            <strong>名片資訊:</strong><br>
+                            姓名: ${data.name || 'N/A'}<br>
+                            公司: ${data.company || 'N/A'}<br>
+                            職位: ${data.title || 'N/A'}<br>
+                            電話: ${data.phone || 'N/A'}<br>
+                            Email: ${data.email || 'N/A'}<br>
+                            分片索引: ${result.shard_index}
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('registerResult').innerHTML = `<p class="error">❌ 查詢失敗: ${result.error}</p>`;
+                }
+            } catch (error) {
+                document.getElementById('registerResult').innerHTML = `<p class="error">❌ 網路錯誤: ${error.message}</p>`;
+            }
+        }
+
+        // 搜尋用戶
+        async function searchUsers() {
+            const query = document.getElementById('searchQuery').value;
+            
+            if (!query) {
+                document.getElementById('searchResults').innerHTML = '<p class="error">請輸入搜尋關鍵字</p>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`);
+                const result = await response.json();
+                
+                if (result.results && result.results.length > 0) {
+                    let html = '<h3>搜尋結果:</h3>';
+                    result.results.forEach(user => {
+                        html += `
+                            <div class="result-item">
+                                <strong>${user.name}</strong> (ID: ${user.user_id})<br>
+                                公司: ${user.company || 'N/A'}<br>
+                                職位: ${user.title || 'N/A'}<br>
+                                分片: ${user.shard_index}
+                            </div>
+                        `;
+                    });
+                    document.getElementById('searchResults').innerHTML = html;
+                } else {
+                    document.getElementById('searchResults').innerHTML = '<p>未找到相關結果</p>';
+                }
+            } catch (error) {
+                document.getElementById('searchResults').innerHTML = `<p class="error">❌ 搜尋錯誤: ${error.message}</p>`;
+            }
+        }
+
+        // 查詢分片資訊
+        async function getShardInfo() {
+            const userId = parseInt(document.getElementById('shardUserId').value);
+            
+            if (!userId) {
+                document.getElementById('shardInfo').innerHTML = '<p class="error">請輸入用戶ID</p>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/shard-info/${userId}`);
+                const result = await response.json();
+                
+                document.getElementById('shardInfo').innerHTML = `
+                    <div class="shard-info">
+                        <strong>分片詳細資訊:</strong><br>
+                        用戶ID: ${result.user_id}<br>
+                        分片索引: ${result.shard_index}<br>
+                        Firebase專案: ${result.firebase_project}<br>
+                        MEGA帳號: ${result.mega_account}<br>
+                        範圍: ${result.shard_index * 10000 + 1} - ${(result.shard_index + 1) * 10000}
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('shardInfo').innerHTML = `<p class="error">❌ 查詢錯誤: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
