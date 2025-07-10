@@ -3,81 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI名片王 Pro - 智能分片管理</title>
+    <title>AI名片王 - 分片式名片管理</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-        .header { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); color: white; padding: 30px; text-align: center; border-radius: 15px; margin-bottom: 30px; }
-        .card { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-radius: 15px; padding: 25px; margin-bottom: 25px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
-        .card h2 { color: #333; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-        .input-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; color: #555; }
-        input, textarea, select { width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 14px; transition: border-color 0.3s; }
-        input:focus, textarea:focus, select:focus { outline: none; border-color: #667eea; }
-        .btn { background: linear-gradient(45deg, #667eea, #764ba2); color: white; padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; margin-right: 10px; margin-bottom: 10px; font-weight: 600; transition: transform 0.2s, box-shadow 0.2s; }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .btn-secondary { background: linear-gradient(45deg, #11998e, #38ef7d); }
-        .btn-danger { background: linear-gradient(45deg, #ff6b6b, #ee5a24); }
-        .success { color: #27ae60; font-weight: 600; }
-        .error { color: #e74c3c; font-weight: 600; }
-        .info { color: #3498db; font-weight: 600; }
-        .shard-info { background: linear-gradient(45deg, #f8f9fa, #e9ecef); padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid #667eea; }
-        .search-container { display: flex; gap: 10px; margin-bottom: 20px; }
-        .search-input { flex: 1; }
-        .search-results { margin-top: 25px; max-height: 500px; overflow-y: auto; }
-        .result-item { background: linear-gradient(45deg, #f8f9fa, #ffffff); padding: 15px; margin-bottom: 15px; border-radius: 10px; border-left: 4px solid #667eea; transition: transform 0.2s; }
-        .result-item:hover { transform: translateX(5px); }
-        .loading { text-align: center; padding: 20px; color: #666; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
-        .stat-card { background: linear-gradient(45deg, #667eea, #764ba2); color: white; padding: 20px; border-radius: 10px; text-align: center; }
-        .stat-number { font-size: 2em; font-weight: bold; }
-        .stat-label { font-size: 0.9em; opacity: 0.9; }
-        .search-mode { display: flex; gap: 10px; margin-bottom: 15px; }
-        .search-mode button { padding: 8px 16px; font-size: 12px; }
-        .search-mode button.active { background: #667eea; }
-        .progress-bar { width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; margin-top: 10px; }
-        .progress-fill { height: 100%; background: linear-gradient(45deg, #667eea, #764ba2); transition: width 0.3s; }
-        .auto-setup-panel { background: linear-gradient(45deg, #11998e, #38ef7d); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+        body { font-family: Arial, sans-serif; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .header { background: #2c3e50; color: white; padding: 20px; text-align: center; border-radius: 8px; margin-bottom: 20px; }
+        .card { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #3498db; color: white; padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px; }
+        button:hover { background: #2980b9; }
+        .success { color: #27ae60; }
+        .error { color: #e74c3c; }
+        .shard-info { background: #ecf0f1; padding: 10px; border-radius: 4px; margin-top: 10px; }
+        .search-results { margin-top: 20px; }
+        .result-item { background: #f8f9fa; padding: 10px; margin-bottom: 10px; border-radius: 4px; border-left: 4px solid #3498db; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🚀 AI名片王 Pro</h1>
-            <p>智能分片管理系統 - 支援100萬用戶 | 毫秒級搜尋 | 自動化管理</p>
-        </div>
-
-        <!-- 自動設定面板 -->
-        <div class="auto-setup-panel">
-            <h2>⚡ 快速設定</h2>
-            <p>一鍵自動設定分片系統，無需手動配置</p>
-            <button class="btn btn-secondary" onclick="autoSetup()">🔧 自動設定分片</button>
-            <button class="btn btn-secondary" onclick="getShardStatus()">📊 查看分片狀態</button>
-            <div id="setupResult"></div>
-        </div>
-
-        <!-- 智能搜尋 -->
-        <div class="card">
-            <h2>🔍 智能搜尋</h2>
-            <div class="search-mode">
-                <button class="btn active" id="fastMode" onclick="setSearchMode('fast')">⚡ 快速搜尋</button>
-                <button class="btn" id="parallelMode" onclick="setSearchMode('parallel')">🔄 並行搜尋</button>
-            </div>
-            <div class="search-container">
-                <input type="text" id="searchQuery" class="search-input" placeholder="輸入姓名、公司或職位..." onkeyup="handleSearchInput(event)">
-                <button class="btn" onclick="performSearch()">搜尋</button>
-                <button class="btn btn-secondary" onclick="clearSearch()">清除</button>
-            </div>
-            <div id="searchResults" class="search-results"></div>
+            <h1>🎯 AI名片王</h1>
+            <p>分片式名片管理系統 - 支援100萬用戶</p>
         </div>
 
         <!-- 用戶註冊 -->
         <div class="card">
-            <h2>👤 用戶註冊</h2>
+            <h2>📝 註冊名片</h2>
             <div class="input-group">
-                <label>用戶ID (自動分配):</label>
-                <input type="number" id="userId" placeholder="留空自動分配，或手動輸入1-1000000">
+                <label>用戶ID (1-1000000):</label>
+                <input type="number" id="userId" min="1" max="1000000" placeholder="請輸入用戶ID">
             </div>
             <div class="input-group">
                 <label>姓名:</label>
@@ -92,137 +49,58 @@
                 <input type="text" id="userTitle" placeholder="請輸入職位">
             </div>
             <div class="input-group">
-                <label>聯絡方式:</label>
-                <input type="text" id="userContact" placeholder="電話或Email">
+                <label>電話:</label>
+                <input type="tel" id="userPhone" placeholder="請輸入電話">
             </div>
-            <button class="btn" onclick="registerUser()">🎯 智能註冊</button>
-            <button class="btn btn-secondary" onclick="batchRegister()">📦 批量註冊</button>
+            <div class="input-group">
+                <label>Email:</label>
+                <input type="email" id="userEmail" placeholder="請輸入Email">
+            </div>
+            <button onclick="registerUser()">註冊名片</button>
+            <button onclick="getUserInfo()">查詢名片</button>
             <div id="registerResult"></div>
         </div>
 
-        <!-- 系統狀態 -->
+        <!-- 搜尋功能 -->
         <div class="card">
-            <h2>📊 系統狀態</h2>
-            <div class="stats-grid" id="statsGrid">
-                <div class="stat-card">
-                    <div class="stat-number" id="totalUsers">0</div>
-                    <div class="stat-label">總用戶數</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="activeShards">0</div>
-                    <div class="stat-label">活躍分片</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="searchSpeed">0ms</div>
-                    <div class="stat-label">搜尋速度</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="systemHealth">100%</div>
-                    <div class="stat-label">系統健康度</div>
-                </div>
+            <h2>🔍 搜尋名片</h2>
+            <div class="input-group">
+                <label>搜尋關鍵字:</label>
+                <input type="text" id="searchQuery" placeholder="請輸入姓名或公司名稱">
             </div>
-            <div id="shardDetails"></div>
+            <button onclick="searchUsers()">搜尋</button>
+            <div id="searchResults" class="search-results"></div>
+        </div>
+
+        <!-- 分片資訊 -->
+        <div class="card">
+            <h2>⚙️ 分片資訊</h2>
+            <div class="input-group">
+                <label>查詢用戶ID的分片資訊:</label>
+                <input type="number" id="shardUserId" min="1" max="1000000" placeholder="請輸入用戶ID">
+            </div>
+            <button onclick="getShardInfo()">查詢分片</button>
+            <div id="shardInfo"></div>
         </div>
     </div>
 
     <script>
         const API_BASE = 'https://your-render-app.onrender.com/api';
-        let currentSearchMode = 'fast';
-        let searchTimeout;
-
-        // 設定搜尋模式
-        function setSearchMode(mode) {
-            currentSearchMode = mode;
-            document.getElementById('fastMode').classList.toggle('active', mode === 'fast');
-            document.getElementById('parallelMode').classList.toggle('active', mode === 'parallel');
-        }
-
-        // 智能搜尋輸入處理
-        function handleSearchInput(event) {
-            if (event.key === 'Enter') {
-                performSearch();
-                return;
-            }
-            
-            // 防抖動搜尋
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                const query = event.target.value.trim();
-                if (query.length >= 2) {
-                    performSearch(true); // 自動搜尋
-                }
-            }, 300);
-        }
-
-        // 執行搜尋
-        async function performSearch(isAuto = false) {
-            const query = document.getElementById('searchQuery').value.trim();
-            const resultsDiv = document.getElementById('searchResults');
-            
-            if (!query) {
-                resultsDiv.innerHTML = '';
-                return;
-            }
-
-            if (!isAuto) {
-                resultsDiv.innerHTML = '<div class="loading">🔍 搜尋中...</div>';
-            }
-
-            const startTime = Date.now();
-            
-            try {
-                const endpoint = currentSearchMode === 'fast' ? 'search-fast' : 'search-parallel';
-                const response = await fetch(`${API_BASE}/${endpoint}?q=${encodeURIComponent(query)}`);
-                const result = await response.json();
-                
-                const searchTime = Date.now() - startTime;
-                document.getElementById('searchSpeed').textContent = `${searchTime}ms`;
-                
-                if (result.results && result.results.length > 0) {
-                    let html = `
-                        <div class="info">
-                            ✅ 找到 ${result.results.length} 個結果 (${searchTime}ms, ${result.source || result.search_time})
-                        </div>
-                    `;
-                    
-                    result.results.forEach(user => {
-                        html += `
-                            <div class="result-item">
-                                <strong>${user.name}</strong> ${user.user_id ? `(ID: ${user.user_id})` : ''}
-                                <br>🏢 ${user.company || 'N/A'}
-                                <br>💼 ${user.title || 'N/A'}
-                                <br>📍 分片: ${user.shard_index}
-                            </div>
-                        `;
-                    });
-                    resultsDiv.innerHTML = html;
-                } else {
-                    resultsDiv.innerHTML = '<div class="info">🔍 未找到相關結果</div>';
-                }
-            } catch (error) {
-                resultsDiv.innerHTML = `<div class="error">❌ 搜尋錯誤: ${error.message}</div>`;
-            }
-        }
-
-        // 清除搜尋
-        function clearSearch() {
-            document.getElementById('searchQuery').value = '';
-            document.getElementById('searchResults').innerHTML = '';
-        }
 
         // 註冊用戶
         async function registerUser() {
-            const userId = parseInt(document.getElementById('userId').value) || Math.floor(Math.random() * 1000000) + 1;
+            const userId = parseInt(document.getElementById('userId').value);
             const userData = {
                 name: document.getElementById('userName').value,
                 company: document.getElementById('userCompany').value,
                 title: document.getElementById('userTitle').value,
-                contact: document.getElementById('userContact').value,
+                phone: document.getElementById('userPhone').value,
+                email: document.getElementById('userEmail').value,
                 created_at: new Date().toISOString()
             };
 
-            if (!userData.name) {
-                showResult('registerResult', '請填寫姓名', 'error');
+            if (!userId || !userData.name) {
+                document.getElementById('registerResult').innerHTML = '<p class="error">請填寫用戶ID和姓名</p>';
                 return;
             }
 
@@ -236,143 +114,119 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    showResult('registerResult', `
-                        ✅ 註冊成功！
+                    document.getElementById('registerResult').innerHTML = `
+                        <p class="success">✅ 註冊成功！</p>
                         <div class="shard-info">
+                            <strong>分片資訊:</strong><br>
                             用戶ID: ${userId}<br>
-                            分片: ${result.shard_info.index}<br>
-                            狀態: ${result.shard_info.status}
+                            分片索引: ${result.shard_index}<br>
+                            Firebase專案: ai-card-${result.shard_index}
                         </div>
-                    `, 'success');
-                    
-                    // 更新統計
-                    updateStats();
+                    `;
                 } else {
-                    showResult('registerResult', `❌ 註冊失敗: ${result.error}`, 'error');
+                    document.getElementById('registerResult').innerHTML = `<p class="error">❌ 註冊失敗: ${result.error}</p>`;
                 }
             } catch (error) {
-                showResult('registerResult', `❌ 網路錯誤: ${error.message}`, 'error');
+                document.getElementById('registerResult').innerHTML = `<p class="error">❌ 網路錯誤: ${error.message}</p>`;
             }
         }
 
-        // 批量註冊
-        async function batchRegister() {
-            const count = parseInt(prompt('要批量註冊多少個測試用戶？', '10'));
-            if (!count || count < 1) return;
-
-            const resultsDiv = document.getElementById('registerResult');
-            resultsDiv.innerHTML = '<div class="loading">📦 批量註冊中...</div>';
-
-            let successCount = 0;
-            for (let i = 0; i < count; i++) {
-                const userId = Math.floor(Math.random() * 1000000) + 1;
-                const userData = {
-                    name: `測試用戶${i + 1}`,
-                    company: `公司${Math.floor(Math.random() * 100)}`,
-                    title: `職位${Math.floor(Math.random() * 10)}`,
-                    contact: `test${i}@example.com`
-                };
-
-                try {
-                    const response = await fetch(`${API_BASE}/register`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ user_id: userId, user_data: userData })
-                    });
-
-                    if (response.ok) successCount++;
-                } catch (error) {
-                    console.error('批量註冊錯誤:', error);
-                }
-
-                // 更新進度
-                const progress = Math.round((i + 1) / count * 100);
-                resultsDiv.innerHTML = `
-                    <div class="loading">📦 批量註冊中... ${i + 1}/${count}</div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: ${progress}%"></div>
-                    </div>
-                `;
+        // 查詢用戶資訊
+        async function getUserInfo() {
+            const userId = parseInt(document.getElementById('userId').value);
+            
+            if (!userId) {
+                document.getElementById('registerResult').innerHTML = '<p class="error">請輸入用戶ID</p>';
+                return;
             }
-
-            showResult('registerResult', `✅ 批量註冊完成！成功: ${successCount}/${count}`, 'success');
-            updateStats();
-        }
-
-        // 自動設定
-        async function autoSetup() {
-            const resultsDiv = document.getElementById('setupResult');
-            resultsDiv.innerHTML = '<div class="loading">🔧 自動設定中...</div>';
 
             try {
-                const response = await fetch(`${API_BASE}/auto-setup`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-
+                const response = await fetch(`${API_BASE}/user/${userId}`);
                 const result = await response.json();
                 
                 if (result.success) {
-                    showResult('setupResult', `
-                        ✅ ${result.message}
-                        <br>活躍分片: ${result.active_shards}
-                    `, 'success');
-                    updateStats();
-                } else {
-                    showResult('setupResult', `❌ 設定失敗: ${result.error}`, 'error');
-                }
-            } catch (error) {
-                showResult('setupResult', `❌ 設定錯誤: ${error.message}`, 'error');
-            }
-        }
-
-        // 獲取分片狀態
-        async function getShardStatus() {
-            try {
-                const response = await fetch(`${API_BASE}/shard-status`);
-                const result = await response.json();
-                
-                document.getElementById('activeShards').textContent = result.active_shards;
-                
-                let html = '<h3>📊 分片詳情</h3>';
-                const activeShards = result.shards.filter(s => s.status === 'active');
-                activeShards.slice(0, 5).forEach(shard => {
-                    const usage = Math.round((shard.user_count / shard.max_users) * 100);
-                    html += `
+                    const data = result.data;
+                    document.getElementById('registerResult').innerHTML = `
+                        <p class="success">✅ 查詢成功！</p>
                         <div class="shard-info">
-                            分片 ${shard.index}: ${shard.user_count}/${shard.max_users} 用戶 (${usage}%)
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: ${usage}%"></div>
-                            </div>
+                            <strong>名片資訊:</strong><br>
+                            姓名: ${data.name || 'N/A'}<br>
+                            公司: ${data.company || 'N/A'}<br>
+                            職位: ${data.title || 'N/A'}<br>
+                            電話: ${data.phone || 'N/A'}<br>
+                            Email: ${data.email || 'N/A'}<br>
+                            分片索引: ${result.shard_index}
                         </div>
                     `;
-                });
-                
-                document.getElementById('shardDetails').innerHTML = html;
+                } else {
+                    document.getElementById('registerResult').innerHTML = `<p class="error">❌ 查詢失敗: ${result.error}</p>`;
+                }
             } catch (error) {
-                console.error('獲取分片狀態錯誤:', error);
+                document.getElementById('registerResult').innerHTML = `<p class="error">❌ 網路錯誤: ${error.message}</p>`;
             }
         }
 
-        // 更新統計
-        function updateStats() {
-            // 這裡可以實現實時統計更新
-            getShardStatus();
-        }
-
-        // 顯示結果
-        function showResult(elementId, message, type) {
-            const element = document.getElementById(elementId);
-            element.innerHTML = `<div class="${type}">${message}</div>`;
-        }
-
-        // 頁面載入時初始化
-        document.addEventListener('DOMContentLoaded', function() {
-            updateStats();
+        // 搜尋用戶
+        async function searchUsers() {
+            const query = document.getElementById('searchQuery').value;
             
-            // 每30秒更新一次統計
-            setInterval(updateStats, 30000);
-        });
+            if (!query) {
+                document.getElementById('searchResults').innerHTML = '<p class="error">請輸入搜尋關鍵字</p>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`);
+                const result = await response.json();
+                
+                if (result.results && result.results.length > 0) {
+                    let html = '<h3>搜尋結果:</h3>';
+                    result.results.forEach(user => {
+                        html += `
+                            <div class="result-item">
+                                <strong>${user.name}</strong> (ID: ${user.user_id})<br>
+                                公司: ${user.company || 'N/A'}<br>
+                                職位: ${user.title || 'N/A'}<br>
+                                分片: ${user.shard_index}
+                            </div>
+                        `;
+                    });
+                    document.getElementById('searchResults').innerHTML = html;
+                } else {
+                    document.getElementById('searchResults').innerHTML = '<p>未找到相關結果</p>';
+                }
+            } catch (error) {
+                document.getElementById('searchResults').innerHTML = `<p class="error">❌ 搜尋錯誤: ${error.message}</p>`;
+            }
+        }
+
+        // 查詢分片資訊
+        async function getShardInfo() {
+            const userId = parseInt(document.getElementById('shardUserId').value);
+            
+            if (!userId) {
+                document.getElementById('shardInfo').innerHTML = '<p class="error">請輸入用戶ID</p>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/shard-info/${userId}`);
+                const result = await response.json();
+                
+                document.getElementById('shardInfo').innerHTML = `
+                    <div class="shard-info">
+                        <strong>分片詳細資訊:</strong><br>
+                        用戶ID: ${result.user_id}<br>
+                        分片索引: ${result.shard_index}<br>
+                        Firebase專案: ${result.firebase_project}<br>
+                        MEGA帳號: ${result.mega_account}<br>
+                        範圍: ${result.shard_index * 10000 + 1} - ${(result.shard_index + 1) * 10000}
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('shardInfo').innerHTML = `<p class="error">❌ 查詢錯誤: ${error.message}</p>`;
+            }
+        }
     </script>
 </body>
 </html>
